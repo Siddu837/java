@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA with Java — Day 1</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --surface: #0f0f1a;
+    --card: #13131e;
+    --border: #22223a;
+    --accent: #00f5a0;
+    --accent2: #00c8f0;
+    --accent3: #f72585;
+    --text: #e8e8f4;
+    --muted: #5a5a7a;
+    --code-bg: #0a0a14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,245,160,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 64px 0 44px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,245,160,0.07);
+    border: 1px solid rgba(0,245,160,0.25);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 6px 16px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 14px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .dot { color: var(--accent); }
+
+  /* ── STATS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 36px 0;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .stat {
+    background: var(--card);
+    padding: 22px 16px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+
+  .stat:hover { background: rgba(0,245,160,0.03); }
+
+  .stat-num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.25s ease both;
+  }
+
+  .tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 12px 22px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── SECTION ── */
+  .section {
+    display: none;
+    animation: fadeUp 0.35s ease both;
+    padding: 40px 0 60px;
+  }
+  .section.active { display: block; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+  @media(max-width: 800px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: rgba(0,245,160,0.3); transform: translateY(-2px); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .card p {
+    font-size: 0.83rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.85;
+    overflow-x: auto;
+    margin-top: 12px;
+    white-space: pre;
+    color: #c9d1d9;
+  }
+
+  .kw { color: #ff79c6; }
+  .type { color: #8be9fd; }
+  .fn { color: #50fa7b; }
+  .str { color: #f1fa8c; }
+  .num { color: #bd93f9; }
+  .cmt { color: #6272a4; font-style: italic; }
+
+  /* ── PATTERN GRID ── */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .pattern-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.22s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pattern-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% -20%, rgba(0,245,160,0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .pattern-card:hover { border-color: rgba(0,245,160,0.35); transform: translateY(-3px); }
+  .pattern-card:hover::before { opacity: 1; }
+  .pattern-card.selected { border-color: var(--accent); background: rgba(0,245,160,0.04); box-shadow: 0 0 0 1px rgba(0,245,160,0.15); }
+
+  .pattern-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .pattern-badge.basic {
+    background: rgba(0,245,160,0.08);
+    border: 1px solid rgba(0,245,160,0.2);
+    color: var(--accent);
+  }
+
+  .pattern-badge.advanced {
+    background: rgba(0,200,240,0.08);
+    border: 1px solid rgba(0,200,240,0.2);
+    color: var(--accent2);
+  }
+
+  .pattern-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .pattern-preview {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    line-height: 1.35;
+    color: rgba(232,232,244,0.55);
+    white-space: pre;
+    letter-spacing: 1.5px;
+  }
+
+  .pattern-card.selected .pattern-preview { color: var(--accent); }
+
+  /* ── LIVE BOX ── */
+  .live-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    position: sticky;
+    top: 20px;
+  }
+
+  .live-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .live-title {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .size-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .size-control input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 110px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  .size-control input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .live-output {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre;
+    letter-spacing: 2px;
+    color: var(--accent);
+    min-height: 180px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+  .selected-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .selected-info b { color: var(--accent); }
+
+  .live-java {
+    margin-top: 14px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    white-space: pre;
+    color: #d0d8e4;
+    overflow-x: auto;
+  }
+
+  .live-java-label {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 16px;
+    margin-bottom: 6px;
+  }
+
+  /* ── SECTION HEADING ── */
+  .section-heading {
+    margin-bottom: 32px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .section-heading p {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 6px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: rgba(0,245,160,0.1); border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active-blue { background: rgba(0,200,240,0.1); border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── SPLIT LAYOUT ── */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media(max-width: 900px) {
+    .split { grid-template-columns: 1fr; }
+    .live-box { position: static; }
+  }
+
+  /* ── FN CARD ── */
+  .fn-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .fn-card:hover { border-color: rgba(0,245,160,0.25); }
+
+  .fn-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,245,160,0.02);
+  }
+
+  .fn-icon {
+    width: 34px;
+    height: 34px;
+    background: rgba(0,245,160,0.08);
+    border: 1px solid rgba(0,245,160,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .fn-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .fn-tag {
+    margin-left: auto;
+    background: rgba(0,180,216,0.08);
+    border: 1px solid rgba(0,180,216,0.2);
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .fn-body { padding: 20px 22px; }
+
+  .fn-desc {
+    font-size: 0.83rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+
+  /* ── DEMO AREA ── */
+  .demo-area {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 32px;
+  }
+
+  .demo-title {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .demo-title::before {
+    content: '';
+    width: 4px;
+    height: 14px;
+    background: var(--accent3);
+    border-radius: 2px;
+  }
+
+  .demo-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .demo-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-width: 80px;
+  }
+
+  input[type=number], input[type=text] {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    padding: 9px 14px;
+    width: 120px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input[type=number]:focus, input[type=text]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,245,160,0.1);
+  }
+
+  .run-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  .run-btn:hover { opacity: 0.85; transform: scale(0.98); }
+  .run-btn.blue { background: var(--accent2); }
+  .run-btn.pink { background: var(--accent3); }
+
+  .result-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+    color: var(--accent);
+    min-height: 52px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+
+  /* ── CONCEPTS PILLS ── */
+  .concepts-section { margin-bottom: 36px; }
+
+  .concepts-group { margin-bottom: 20px; }
+
+  .concepts-group-label {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    background: rgba(0,245,160,0.06);
+    border: 1px solid rgba(0,245,160,0.18);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    padding: 5px 14px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+  }
+
+  .pill.blue {
+    background: rgba(0,200,240,0.06);
+    border-color: rgba(0,200,240,0.18);
+    color: var(--accent2);
+  }
+
+  .pill.pink {
+    background: rgba(247,37,133,0.06);
+    border-color: rgba(247,37,133,0.18);
+    color: var(--accent3);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 0;
+    text-align: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.73rem;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+  }
+
+  footer span { color: var(--accent); }
+
+  .scrollbar-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">Day 01 — DSA with Java</div>
+    <div class="header-row">
+      <div>
+        <h1>Functions &amp; <span>Patterns</span></h1>
+        <div class="subtitle">
+          <span class="dot">▸</span>
+          Learning Data Structures &amp; Algorithms — Java
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Function Concepts</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Basic Patterns</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">Advanced Patterns</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Total Learned</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'patterns')">⬛ Patterns</button>
+    <button class="tab" onclick="switchTab(this,'functions')">⚙ Functions</button>
+    <button class="tab" onclick="switchTab(this,'concepts')">📘 Concepts</button>
+  </div>
+
+  <!-- ════════════ PATTERNS SECTION ════════════ -->
+  <div id="section-patterns" class="section active">
+    <div class="section-heading">
+      <h2>Pattern Renderer</h2>
+      <p>// Select any pattern → see it render live, adjust size, and view the Java code</p>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-btn active" id="filter-all" onclick="setFilter('all',this)">All Patterns</button>
+      <button class="filter-btn" id="filter-basic" onclick="setFilter('basic',this)">Basic</button>
+      <button class="filter-btn" id="filter-advanced" onclick="setFilter('advanced',this)">Advanced</button>
+    </div>
+
+    <div class="split">
+      <!-- LEFT: pattern grid -->
+      <div>
+        <div class="pattern-grid" id="pattern-grid"></div>
+      </div>
+
+      <!-- RIGHT: live output -->
+      <div class="live-box">
+        <div class="live-header">
+          <div class="live-title">▶ Live Output</div>
+          <div class="size-control">
+            n=<span id="size-val">5</span>
+            <input type="range" min="3" max="9" value="5" id="size-slider" oninput="updateSize(this.value)">
+          </div>
+        </div>
+        <div class="selected-info" id="selected-info">← Select a pattern to render</div>
+        <div class="live-output" id="live-output">// Select a pattern above to see the output here</div>
+        <div id="java-label" class="live-java-label" style="display:none">Java Code</div>
+        <div id="live-java" class="live-java" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ FUNCTIONS SECTION ════════════ -->
+  <div id="section-functions" class="section">
+    <div class="section-heading">
+      <h2>Java Functions</h2>
+      <p>// Inbuilt methods, user-defined methods, overloading &amp; scope</p>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Inbuilt Methods -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">📦</div>
+          <div class="fn-name">Inbuilt Methods</div>
+          <div class="fn-tag">java.lang</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Java's standard library provides ready-to-use methods. No need to write them — just call and use!</div>
+          <div class="code-block"><span class="cmt">// Math methods</span>
+<span class="type">Math</span>.<span class="fn">pow</span>(<span class="num">2</span>, <span class="num">10</span>);      <span class="cmt">// → 1024.0</span>
+<span class="type">Math</span>.<span class="fn">sqrt</span>(<span class="num">144</span>);       <span class="cmt">// → 12.0</span>
+<span class="type">Math</span>.<span class="fn">abs</span>(-<span class="num">99</span>);        <span class="cmt">// → 99</span>
+<span class="type">Math</span>.<span class="fn">max</span>(<span class="num">5</span>, <span class="num">10</span>);      <span class="cmt">// → 10</span>
+<span class="type">Math</span>.<span class="fn">min</span>(<span class="num">5</span>, <span class="num">10</span>);      <span class="cmt">// → 5</span>
+
+<span class="cmt">// String methods</span>
+<span class="str">"hello"</span>.<span class="fn">toUpperCase</span>(); <span class="cmt">// → "HELLO"</span>
+<span class="str">"Java"</span>.<span class="fn">length</span>();       <span class="cmt">// → 4</span>
+<span class="str">"hi"</span>.<span class="fn">charAt</span>(<span class="num">0</span>);        <span class="cmt">// → 'h'</span></div>
+        </div>
+      </div>
+
+      <!-- User-Defined Methods -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">🛠</div>
+          <div class="fn-name">User-Defined Methods</div>
+          <div class="fn-tag">custom</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Write logic once, reuse it everywhere. Makes code cleaner, modular, and easier to debug.</div>
+          <div class="code-block"><span class="cmt">// Return type method</span>
+<span class="kw">static</span> <span class="type">int</span> <span class="fn">add</span>(<span class="type">int</span> a, <span class="type">int</span> b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="cmt">// Void method (no return)</span>
+<span class="kw">static</span> <span class="type">void</span> <span class="fn">greet</span>(<span class="type">String</span> name) {
+  <span class="type">System</span>.out.<span class="fn">println</span>(<span class="str">"Hey, "</span> + name + <span class="str">"!"</span>);
+}
+
+<span class="cmt">// Calling inside main()</span>
+<span class="type">int</span> sum = <span class="fn">add</span>(<span class="num">5</span>, <span class="num">3</span>);  <span class="cmt">// → 8</span>
+<span class="fn">greet</span>(<span class="str">"Siddu"</span>);        <span class="cmt">// Hey, Siddu!</span></div>
+        </div>
+      </div>
+
+      <!-- Overloading Parameters -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">🔢</div>
+          <div class="fn-name">Overloading — Parameters</div>
+          <div class="fn-tag">compile-time</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Same method name, different number of parameters. Java picks the right one at compile time.</div>
+          <div class="code-block"><span class="cmt">// Different number of params</span>
+<span class="kw">static</span> <span class="type">int</span> <span class="fn">add</span>(<span class="type">int</span> a, <span class="type">int</span> b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="kw">static</span> <span class="type">int</span> <span class="fn">add</span>(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> c) {
+  <span class="kw">return</span> a + b + c;
+}
+
+<span class="fn">add</span>(<span class="num">3</span>, <span class="num">4</span>);       <span class="cmt">// → 7  (2-param version)</span>
+<span class="fn">add</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);   <span class="cmt">// → 6  (3-param version)</span></div>
+        </div>
+      </div>
+
+      <!-- Overloading Data Types -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">🔄</div>
+          <div class="fn-name">Overloading — Data Types</div>
+          <div class="fn-tag">polymorphism</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Same method name, different parameter types. Java resolves which version to call based on the argument type.</div>
+          <div class="code-block"><span class="cmt">// Different data types</span>
+<span class="kw">static</span> <span class="type">void</span> <span class="fn">display</span>(<span class="type">int</span> x) {
+  <span class="type">System</span>.out.<span class="fn">println</span>(<span class="str">"int: "</span> + x);
+}
+<span class="kw">static</span> <span class="type">void</span> <span class="fn">display</span>(<span class="type">double</span> x) {
+  <span class="type">System</span>.out.<span class="fn">println</span>(<span class="str">"double: "</span> + x);
+}
+<span class="kw">static</span> <span class="type">void</span> <span class="fn">display</span>(<span class="type">String</span> x) {
+  <span class="type">System</span>.out.<span class="fn">println</span>(<span class="str">"String: "</span> + x);
+}
+
+<span class="fn">display</span>(<span class="num">42</span>);      <span class="cmt">// → int: 42</span>
+<span class="fn">display</span>(<span class="num">3.14</span>);   <span class="cmt">// → double: 3.14</span>
+<span class="fn">display</span>(<span class="str">"hi"</span>);  <span class="cmt">// → String: hi</span></div>
+        </div>
+      </div>
+
+      <!-- Method Scope -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">🔒</div>
+          <div class="fn-name">Method Scope</div>
+          <div class="fn-tag">scope</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Variables declared inside a method only live within that method. Other methods cannot see them.</div>
+          <div class="code-block"><span class="kw">static</span> <span class="type">void</span> <span class="fn">methodA</span>() {
+  <span class="type">int</span> x = <span class="num">10</span>; <span class="cmt">// lives only in methodA</span>
+  <span class="type">System</span>.out.<span class="fn">println</span>(x); <span class="cmt">// ✅ works</span>
+}
+
+<span class="kw">static</span> <span class="type">void</span> <span class="fn">methodB</span>() {
+  <span class="cmt">// System.out.println(x); ❌ error!</span>
+  <span class="cmt">// x is NOT visible here</span>
+  <span class="type">int</span> x = <span class="num">99</span>; <span class="cmt">// this is a DIFFERENT x</span>
+  <span class="type">System</span>.out.<span class="fn">println</span>(x); <span class="cmt">// ✅ 99</span>
+}</div>
+        </div>
+      </div>
+
+      <!-- Block Scope -->
+      <div class="fn-card">
+        <div class="fn-header">
+          <div class="fn-icon">📦</div>
+          <div class="fn-name">Block Scope</div>
+          <div class="fn-tag">scope</div>
+        </div>
+        <div class="fn-body">
+          <div class="fn-desc">Variables declared inside a {} block only exist within that block — even inside the same method.</div>
+          <div class="code-block"><span class="kw">static</span> <span class="type">void</span> <span class="fn">demo</span>() {
+  <span class="type">int</span> x = <span class="num">10</span>; <span class="cmt">// method scope</span>
+
+  <span class="kw">if</span> (<span class="kw">true</span>) {
+    <span class="type">int</span> y = <span class="num">20</span>; <span class="cmt">// block scope</span>
+    <span class="type">System</span>.out.<span class="fn">println</span>(x + y); <span class="cmt">// ✅ 30</span>
+  }
+  <span class="cmt">// System.out.println(y); ❌</span>
+  <span class="cmt">// y is out of scope here!</span>
+
+  <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+    <span class="cmt">// i only lives inside this loop</span>
+  }
+  <span class="cmt">// System.out.println(i); ❌</span>
+}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Interactive Demo -->
+    <div class="demo-area">
+      <div class="demo-title">Try It Live — Interactive Demo</div>
+      <div class="demo-row">
+        <span class="demo-label">Number A</span>
+        <input type="number" id="numA" value="12" />
+        <span class="demo-label">Number B</span>
+        <input type="number" id="numB" value="8" />
+      </div>
+      <div class="demo-row">
+        <button class="run-btn" onclick="runAdd()">add(a, b)</button>
+        <button class="run-btn blue" onclick="runMax()">Math.max(a, b)</button>
+        <button class="run-btn pink" onclick="runPow()">Math.pow(a, b)</button>
+        <button class="run-btn" style="background:var(--accent2);color:#000" onclick="runOverload()">display() overload</button>
+      </div>
+      <div class="result-box" id="fn-result">// Output will appear here</div>
+    </div>
+  </div>
+
+  <!-- ════════════ CONCEPTS SECTION ════════════ -->
+  <div id="section-concepts" class="section">
+    <div class="section-heading">
+      <h2>Concepts Covered</h2>
+      <p>// Everything learned in Day 1 — Functions &amp; Patterns</p>
+    </div>
+
+    <div class="concepts-section">
+      <div class="concepts-group">
+        <div class="concepts-group-label">⚙ Functions</div>
+        <div class="pills">
+          <span class="pill">Inbuilt Methods</span>
+          <span class="pill">User-Defined Methods</span>
+          <span class="pill">Overloading Parameters</span>
+          <span class="pill">Overloading Data Types</span>
+          <span class="pill">Method Scope</span>
+          <span class="pill">Block Scope</span>
+        </div>
+      </div>
+      <div class="concepts-group" style="margin-top:18px">
+        <div class="concepts-group-label">⬛ Basic Patterns</div>
+        <div class="pills">
+          <span class="pill blue">Star Rectangle</span>
+          <span class="pill blue">Inverted Star</span>
+          <span class="pill blue">Half Pyramid</span>
+          <span class="pill blue">Character Pattern</span>
+        </div>
+      </div>
+      <div class="concepts-group" style="margin-top:18px">
+        <div class="concepts-group-label">🔺 Advanced Patterns</div>
+        <div class="pills">
+          <span class="pill pink">Hollow Rectangle</span>
+          <span class="pill pink">Inverted Pyramid</span>
+          <span class="pill pink">Rotated Pyramid</span>
+          <span class="pill pink">Floyd's Triangle</span>
+          <span class="pill pink">Butterfly</span>
+          <span class="pill pink">Solid Rhombus</span>
+          <span class="pill pink">Hollow Rhombus</span>
+          <span class="pill pink">Diamond</span>
+          <span class="pill pink">Binary Pyramid</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px">
+      <div class="card">
+        <div class="card-title">Why Patterns?</div>
+        <h3>Loop Mastery</h3>
+        <p>Patterns train your brain to think in nested loops. Every pattern is rows × columns. Once you see that, any pattern becomes solvable using a simple formula.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Why Functions?</div>
+        <h3>DRY Principle</h3>
+        <p>Don't Repeat Yourself. Functions let you write logic once and call it anywhere. Overloading adds flexibility — same name, smarter behavior based on input.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Key Insight</div>
+        <h3>Scope = Memory Safety</h3>
+        <p>Understanding scope prevents hard-to-find bugs. Variables only live in their block — this forces cleaner, more predictable and readable code.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">What's Next?</div>
+        <h3>Arrays &amp; Searching</h3>
+        <p>Next: arrays, linear search, binary search, and bubble sort. The nested-loop intuition from patterns maps directly to array traversal algorithms.</p>
+      </div>
+    </div>
+
+    <!-- Universal Pattern Formula -->
+    <div class="fn-card">
+      <div class="fn-header">
+        <div class="fn-icon">📐</div>
+        <div class="fn-name">The Universal Pattern Formula</div>
+        <div class="fn-tag">key insight</div>
+      </div>
+      <div class="fn-body">
+        <div class="fn-desc">Every pattern you'll ever write follows this skeleton. Only the inner condition changes — master that, master all patterns:</div>
+        <div class="code-block"><span class="kw">for</span> (<span class="type">int</span> i = <span class="num">1</span>; i &lt;= n; i++) {          <span class="cmt">// outer loop = rows</span>
+  <span class="kw">for</span> (<span class="type">int</span> j = <span class="num">1</span>; j &lt;= ???; j++) {      <span class="cmt">// inner loop = cols (this changes!)</span>
+    <span class="type">System</span>.out.<span class="fn">print</span>(<span class="str">"* "</span>);             <span class="cmt">// what to print</span>
+  }
+  <span class="type">System</span>.out.<span class="fn">println</span>();                  <span class="cmt">// newline after each row</span>
+}
+
+<span class="cmt">// Swap the inner condition:</span>
+<span class="cmt">// Half pyramid    →  j &lt;= i</span>
+<span class="cmt">// Inverted        →  j &lt;= (n - i + 1)</span>
+<span class="cmt">// Floyd's         →  print count++ instead of *</span>
+<span class="cmt">// Hollow rect     →  i==1 || i==n || j==1 || j==n</span>
+<span class="cmt">// Diamond         →  spaces + stars formula per row</span>
+<span class="cmt">// Binary pyramid  →  print (i+j)%2 per cell</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="container">
+    Learning DSA with Java &nbsp;·&nbsp; <span>Day 01</span> &nbsp;·&nbsp; Functions &amp; Patterns &nbsp;·&nbsp; <span>#buildinpublic</span>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// PATTERN DEFINITIONS
+// ══════════════════════════════════════════
+const patterns = [
+  // ── BASIC ──
+  {
+    id: 'starrect',
+    name: 'Star Rectangle',
+    type: 'basic',
+    preview: () => {
+      let o = '';
+      for (let i = 0; i < 4; i++) o += '* * * *\n';
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= n; j++) o += '* ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'invstar',
+    name: 'Inverted Star',
+    type: 'basic',
+    preview: () => {
+      let o = '';
+      for (let i = 4; i >= 1; i--) o += '* '.repeat(i).trim() + '\n';
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = n; i >= 1; i--) o += '* '.repeat(i).trim() + '\n';
+      return o.trim();
+    },
+    java: `for (int i = n; i >= 1; i--) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'halfpyr',
+    name: 'Half Pyramid',
+    type: 'basic',
+    preview: () => {
+      let o = '';
+      for (let i = 1; i <= 4; i++) o += '* '.repeat(i).trim() + '\n';
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++) o += '* '.repeat(i).trim() + '\n';
+      return o.trim();
+    },
+    java: `for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'char',
+    name: 'Character Pattern',
+    type: 'basic',
+    preview: () => {
+      let o = '';
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j <= i; j++) o += String.fromCharCode(65 + j) + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j <= i; j++) o += String.fromCharCode(65 + j) + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `for (int i = 0; i < n; i++) {
+    for (int j = 0; j <= i; j++) {
+        System.out.print((char)('A' + j) + " ");
+    }
+    System.out.println();
+}`
+  },
+
+  // ── ADVANCED ──
+  {
+    id: 'hollow',
+    name: 'Hollow Rectangle',
+    type: 'advanced',
+    preview: () => {
+      let o = '';
+      for (let i = 1; i <= 4; i++) {
+        for (let j = 1; j <= 5; j++)
+          o += (i===1||i===4||j===1||j===5) ? '* ' : '  ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= n; j++)
+          o += (i===1||i===n||j===1||j===n) ? '* ' : '  ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+        if (i == 1 || i == n || j == 1 || j == n) {
+            System.out.print("* ");
+        } else {
+            System.out.print("  ");
+        }
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'invpyr',
+    name: 'Inverted Pyramid',
+    type: 'advanced',
+    preview: () => {
+      let o = '';
+      for (let i = 4; i >= 1; i--) {
+        for (let j = 1; j <= i; j++) o += j + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = n; i >= 1; i--) {
+        for (let j = 1; j <= i; j++) o += j + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `for (int i = n; i >= 1; i--) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print(j + " ");
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'rhombus',
+    name: 'Solid Rhombus',
+    type: 'advanced',
+    preview: () => {
+      let o = '';
+      for (let i = 1; i <= 4; i++)
+        o += '  '.repeat(4-i) + '* '.repeat(4).trimEnd() + '\n';
+      return o.trimEnd();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++)
+        o += '  '.repeat(n-i) + '* '.repeat(n).trimEnd() + '\n';
+      return o.trimEnd();
+    },
+    java: `public static void rhombus(int n) {
+
+    for (int i = 1; i <= n; i++) {
+
+        // indent: (n-i) units of 2 spaces each
+        for (int j = 1; j <= (n - i); j++) {
+            System.out.print("  ");
+        }
+
+        // print n stars per row
+        for (int j = 1; j <= n; j++) {
+            System.out.print("* ");
+        }
+
+        System.out.println();
+    }
+}`
+  },
+  {
+    id: 'hollrhombus',
+    name: 'Hollow Rhombus',
+    type: 'advanced',
+    preview: () => {
+      let o = '';
+      const h = 4;
+      for (let i = 1; i <= h; i++) {
+        let row = '  '.repeat(h-i);
+        for (let j = 1; j <= h; j++) {
+          row += (i===1||i===h||j===1||j===h) ? '* ' : '  ';
+        }
+        o += row.trimEnd() + '\n';
+      }
+      return o.trimEnd();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++) {
+        let row = '  '.repeat(n-i);
+        for (let j = 1; j <= n; j++) {
+          row += (i===1||i===n||j===1||j===n) ? '* ' : '  ';
+        }
+        o += row.trimEnd() + '\n';
+      }
+      return o.trimEnd();
+    },
+    java: `public static void hallowrhombus(int n) {
+
+    for (int i = 1; i <= n; i++) {
+
+        // indent: (n-i) units of 2 spaces each
+        for (int j = 1; j <= (n - i); j++) {
+            System.out.print("  ");
+        }
+
+        // print star on border, spaces inside
+        for (int j = 1; j <= n; j++) {
+            if (i == 1 || i == n || j == 1 || j == n) {
+                System.out.print("* ");
+            } else {
+                System.out.print("  ");
+            }
+        }
+
+        System.out.println();
+    }
+}`
+  },
+  {
+    id: 'floyd',
+    name: "Floyd's Triangle",
+    type: 'advanced',
+    preview: () => {
+      let o = '', c = 1;
+      for (let i = 1; i <= 4; i++) {
+        for (let j = 1; j <= i; j++) o += c++ + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    render: n => {
+      let o = '', c = 1;
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= i; j++) o += c++ + ' ';
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `int count = 1;
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print(count++ + " ");
+    }
+    System.out.println();
+}`
+  },
+  {
+    id: 'butterfly',
+    name: 'Butterfly',
+    type: 'advanced',
+    preview: () => {
+      const h = 3;
+      let o = '';
+      for (let i = 1; i <= h; i++)
+        o += '* '.repeat(i) + '  '.repeat((h-i)*2) + '* '.repeat(i) + '\n';
+      for (let i = h; i >= 1; i--)
+        o += '* '.repeat(i) + '  '.repeat((h-i)*2) + '* '.repeat(i) + '\n';
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++)
+        o += '* '.repeat(i) + '  '.repeat((n-i)*2) + '* '.repeat(i) + '\n';
+      for (let i = n; i >= 1; i--)
+        o += '* '.repeat(i) + '  '.repeat((n-i)*2) + '* '.repeat(i) + '\n';
+      return o.trim();
+    },
+    java: `// Upper half
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++)
+        System.out.print("* ");
+    for (int s = 1; s <= 2 * (n - i); s++)
+        System.out.print("  ");
+    for (int j = 1; j <= i; j++)
+        System.out.print("* ");
+    System.out.println();
+}
+
+// Lower half
+for (int i = n; i >= 1; i--) {
+    for (int j = 1; j <= i; j++)
+        System.out.print("* ");
+    for (int s = 1; s <= 2 * (n - i); s++)
+        System.out.print("  ");
+    for (int j = 1; j <= i; j++)
+        System.out.print("* ");
+    System.out.println();
+}`
+  },
+  {
+    id: 'diamond',
+    name: 'Diamond',
+    type: 'advanced',
+    preview: () => {
+      const h = 3;
+      let o = '';
+      for (let i = 1; i <= h; i++)
+        o += '  '.repeat(h-i) + '* '.repeat(2*i-1).trimEnd() + '\n';
+      for (let i = h; i >= 1; i--)
+        o += '  '.repeat(h-i) + '* '.repeat(2*i-1).trimEnd() + '\n';
+      return o.trimEnd();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++)
+        o += '  '.repeat(n-i) + '* '.repeat(2*i-1).trimEnd() + '\n';
+      for (let i = n; i >= 1; i--)
+        o += '  '.repeat(n-i) + '* '.repeat(2*i-1).trimEnd() + '\n';
+      return o.trimEnd();
+    },
+    java: `public static void diamond(int n) {
+
+    // Upper half: i = 1 to n
+    for (int i = 1; i <= n; i++) {
+
+        // indent: (n-i) units of 2 spaces
+        for (int j = 1; j <= (n - i); j++) {
+            System.out.print("  ");
+        }
+
+        // stars per row: 2*i - 1
+        for (int j = 1; j <= (2 * i) - 1; j++) {
+            System.out.print("* ");
+        }
+
+        System.out.println();
+    }
+
+    // Lower half: i = n to 1  (middle row repeats)
+    for (int i = n; i >= 1; i--) {
+
+        // indent: (n-i) units of 2 spaces
+        for (int j = 1; j <= (n - i); j++) {
+            System.out.print("  ");
+        }
+
+        // stars per row: 2*i - 1
+        for (int j = 1; j <= (2 * i) - 1; j++) {
+            System.out.print("* ");
+        }
+
+        System.out.println();
+    }
+}`
+  },
+  {
+    id: 'binary',
+    name: 'Binary Pyramid',
+    type: 'advanced',
+    preview: () => {
+      let o = '';
+      for (let i = 1; i <= 5; i++) {
+        let start = (i % 2 === 1) ? 1 : 0;
+        for (let j = 1; j <= i; j++) {
+          o += start + ' ';
+          start = 1 - start;
+        }
+        o += '\n';
+      }
+      return o.trim();
+    },
+    render: n => {
+      let o = '';
+      for (let i = 1; i <= n; i++) {
+        let start = (i % 2 === 1) ? 1 : 0;
+        for (let j = 1; j <= i; j++) {
+          o += start + ' ';
+          start = 1 - start;
+        }
+        o += '\n';
+      }
+      return o.trim();
+    },
+    java: `for (int i = 1; i <= n; i++) {
+    int start = (i % 2 == 1) ? 1 : 0;
+    for (int j = 1; j <= i; j++) {
+        System.out.print(start + " ");
+        start = 1 - start;
+    }
+    System.out.println();
+}`
+  }
+];
+
+// ══════════════════════════════════════════
+// BUILD PATTERN CARDS
+// ══════════════════════════════════════════
+let currentPattern = null;
+let currentSize = 5;
+let currentFilter = 'all';
+
+const grid = document.getElementById('pattern-grid');
+
+function buildGrid() {
+  grid.innerHTML = '';
+  const filtered = currentFilter === 'all'
+    ? patterns
+    : patterns.filter(p => p.type === currentFilter);
+
+  filtered.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pattern-card' + (currentPattern && currentPattern.id === p.id ? ' selected' : '');
+    card.id = 'pat-' + p.id;
+    card.innerHTML = `
+      <div class="pattern-badge ${p.type}">${p.type}</div>
+      <div class="pattern-name">${p.name}</div>
+      <div class="pattern-preview">${p.preview()}</div>
+    `;
+    card.onclick = () => selectPattern(p);
+    grid.appendChild(card);
+  });
+}
+
+buildGrid();
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active', 'active-blue');
+  });
+  if (f === 'advanced') btn.classList.add('active-blue');
+  else btn.classList.add('active');
+  buildGrid();
+}
+
+function selectPattern(p) {
+  currentPattern = p;
+  buildGrid();
+  renderPattern();
+}
+
+function renderPattern() {
+  if (!currentPattern) return;
+  document.getElementById('selected-info').innerHTML =
+    `Pattern: <b>${currentPattern.name}</b> &nbsp;·&nbsp; Size: <b>n = ${currentSize}</b>`;
+  document.getElementById('live-output').textContent = currentPattern.render(currentSize);
+
+  // Show Java code
+  if (currentPattern.java) {
+    document.getElementById('java-label').style.display = 'block';
+    document.getElementById('live-java').style.display = 'block';
+    document.getElementById('live-java').innerHTML = escapeHtml(currentPattern.java);
+  }
+}
+
+function updateSize(val) {
+  currentSize = parseInt(val);
+  document.getElementById('size-val').textContent = val;
+  renderPattern();
+}
+
+// Escape HTML for safe plain-text display
+function escapeHtml(code) {
+  return code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ══════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('section-' + id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// FUNCTION DEMOS
+// ══════════════════════════════════════════
+function runAdd() {
+  const a = +document.getElementById('numA').value;
+  const b = +document.getElementById('numB').value;
+  document.getElementById('fn-result').textContent =
+    `// User-Defined Method\nstatic int add(int a, int b) { return a + b; }\n\nadd(${a}, ${b})  →  ${a + b}`;
+}
+
+function runMax() {
+  const a = +document.getElementById('numA').value;
+  const b = +document.getElementById('numB').value;
+  document.getElementById('fn-result').textContent =
+    `// Inbuilt Method (java.lang.Math)\nMath.max(${a}, ${b})  →  ${Math.max(a,b)}\nMath.min(${a}, ${b})  →  ${Math.min(a,b)}\nMath.abs(-${Math.abs(a)})  →  ${Math.abs(a)}`;
+}
+
+function runPow() {
+  const a = +document.getElementById('numA').value;
+  const b = +document.getElementById('numB').value;
+  document.getElementById('fn-result').textContent =
+    `// Inbuilt Method (java.lang.Math)\nMath.pow(${a}, ${b})  →  ${Math.pow(a,b)}\n\n// ${a} raised to the power of ${b}`;
+}
+
+function runOverload() {
+  const a = +document.getElementById('numA').value;
+  document.getElementById('fn-result').textContent =
+    `// Method Overloading — same name, different data types\ndisplay(${a})         →  "int: ${a}"       [calls display(int)]\ndisplay(${a}.5)       →  "double: ${a}.5"   [calls display(double)]\ndisplay("${a}")  →  "String: ${a}"    [calls display(String)]`;
+}
+</script>
+</body>
+</html>
